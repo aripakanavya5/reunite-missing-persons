@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ReUnite | Find Missing Lives</title>
+    <link rel="stylesheet" href="./styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+
+    <nav id="main-nav" class="hidden">
+        <div class="logo">ReUnite</div>
+        <ul class="nav-links">
+            <li><a href="#" onclick="showPage('home')">Home</a></li>
+            <li><a href="#" onclick="showPage('search')">Search</a></li>
+            <li id="nav-report"><a href="#" onclick="showPage('report')">Report</a></li>
+            <li><a href="#" onclick="showPage('notifications')">Notifications</a></li>
+            <li id="nav-community" class="hidden"><a href="#" onclick="showPage('community')">Community</a></li>
+            <li><a href="#" onclick="showPage('profile')">Profile</a></li>
+            <li><button class="logout-btn" onclick="logout()">Logout</button></li>
+        </ul>
+    </nav>
+
+    <main id="app-container">
+        <section id="page-auth" class="page">
+            <div class="auth-container">
+                <div class="auth-card">
+                    <h2 id="auth-title">Login to ReUnite</h2>
+                    <form id="auth-form">
+                        <div class="input-group" id="name-group" style="display:none;">
+                            <label>Full Name</label>
+                            <input type="text" id="auth-name">
+                        </div>
+                        <div class="input-group">
+                            <label>Email</label>
+                            <input type="email" id="auth-email" required>
+                        </div>
+                        <div class="input-group">
+                            <label>Password</label>
+                            <input type="password" id="auth-pass" required>
+                        </div>
+                        <div class="input-group" id="role-group" style="display:none;">
+                            <label>I am a:</label>
+                            <select id="auth-role">
+                                <option value="User">User (Report Cases)</option>
+                                <option value="Agent">Agent (Investigator)</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn-primary" id="auth-submit">Login</button>
+                    </form>
+                    <p onclick="toggleAuthMode()" id="auth-toggle-text">Don't have an account? Sign Up</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="page-home" class="page hidden">
+            <div class="hero">
+                <h1>ReUnite – Helping Find Missing Lives</h1>
+                <p>Bringing families back together through community and technology.</p>
+                <div class="hero-btns">
+                    <button class="btn-primary" onclick="showPage('search')">Start Searching</button>
+                    <button class="btn-secondary" onclick="showPage('report')">Report a Case</button>
+                </div>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-card"><h3>1,200+</h3><p>Cases Resolved</p></div>
+                <div class="stat-card"><h3>5,000+</h3><p>Active Agents</p></div>
+            </div>
+        </section>
+
+        <section id="page-search" class="page hidden">
+            <div class="container">
+                <div class="search-header">
+                    <h2>Missing Persons Registry</h2>
+                    <input type="text" id="search-input" placeholder="Search by name or location..." onkeyup="filterSearch()">
+                </div>
+                <div id="search-results" class="card-grid"></div>
+            </div>
+        </section>
+
+        <section id="page-report" class="page hidden">
+            <div class="container">
+                <div class="form-card">
+                    <h2>Report Missing Person</h2>
+                    <form id="report-form">
+                        <div class="form-row">
+                            <input type="text" id="rep-name" placeholder="Full Name" required>
+                            <input type="number" id="rep-age" placeholder="Age" required>
+                        </div>
+                        <input type="text" id="rep-loc" placeholder="Last Seen Location" required>
+                        <textarea id="rep-desc" placeholder="Physical Description / Details"></textarea>
+                        
+                        <div class="ai-box">
+                            <label>Upload Photo (AI Face Detection Active)</label>
+                            <input type="file" id="rep-img" accept="image/*" onchange="handleImageUpload(event)">
+                            <div id="ai-status"></div>
+                            <img id="img-preview" class="hidden">
+                        </div>
+
+                        <div class="payment-section">
+                            <p><i class="fas fa-info-circle"></i> Service Fee: $5.00 (Verification cost)</p>
+                            <button type="button" class="btn-primary" onclick="processPayment()">Pay & Submit Report</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="form-card sketch-section">
+                    <h2>AI Sketch-to-Photo</h2>
+                    <p>Upload a forensic sketch to generate a realistic image.</p>
+                    <input type="file" id="sketch-upload" accept="image/*">
+                    <button class="btn-secondary" onclick="runSketchAI()">Transform Sketch</button>
+                    <div id="sketch-result" class="hidden">
+                        <div class="comparison">
+                            <div><p>Sketch</p><img id="sketch-before"></div>
+                            <div><p>AI Generation</p><img id="sketch-after"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="page-community" class="page hidden">
+            <div class="container">
+                <h2>Agent Dashboard</h2>
+                <div id="agent-cases" class="card-grid"></div>
+            </div>
+        </section>
+
+        <section id="page-notifications" class="page hidden">
+            <div class="container">
+                <h2>Notifications</h2>
+                <div id="notif-list"></div>
+            </div>
+        </section>
+
+        <section id="page-profile" class="page hidden">
+            <div class="container">
+                <div class="profile-card">
+                    <div class="profile-header">
+                        <i class="fas fa-user-circle fa-5x"></i>
+                        <h2 id="prof-name"></h2>
+                        <p id="prof-email"></p>
+                        <span id="prof-role" class="badge"></span>
+                    </div>
+                    <hr>
+                    <h3>My Reported Cases</h3>
+                    <div id="my-reports"></div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <div id="modal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <div id="modal-body"></div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
